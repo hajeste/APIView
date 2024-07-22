@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогноз Погоди</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            background-color: #e9ecef;
+            color: #495057;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-container, .weather-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            margin: auto;
+        }
+        .weather-card {
+            margin-top: 20px;
+        }
+        .weather-card h2 {
+            color: #007bff;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+            border-color: #004494;
+        }
+        .form-control {
+            border-radius: 10px;
+            border: 1px solid #ced4da;
+        }
+        .form-control:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+        }
+        .card-text {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        .card-text div:first-child {
+            font-weight: bold;
+        }
+        .card-text i {
+            margin-right: 5px;
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Прогноз Погоди</h1>
+        </div>
+
+<div class="form-container mx-auto" style="max-width: 600px;">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <form method="GET" action="{% url 'weather' %}">
+                <div class="mb-3">
+                    <label for="city" class="form-label">Введіть назву міста:</label>
+                    <input type="text" id="city" name="city" class="form-control form-control-lg" placeholder="Наприклад, Київ" required>
+                </div>
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg">Отримати Погоду</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+        {% if weather_data %}
+        <div class="weather-card mx-auto" style="max-width: 600px;">
+            <h2 class="card-title">Погода в {{ weather_data.name }}</h2>
+            <div class="card-text">
+                <div><i class="fas fa-thermometer-half"></i> Температура:</div>
+                <div>{{ weather_data.main.temp }} °C</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-temperature-high"></i> Відчутна температура:</div>
+                <div>{{ weather_data.main.feels_like }} °C</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-tint"></i> Вологість:</div>
+                <div>{{ weather_data.main.humidity }}%</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-tachometer-alt"></i> Тиск:</div>
+                <div>{{ weather_data.main.pressure }} hPa</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-wind"></i> Швидкість вітру:</div>
+                <div>{{ weather_data.wind.speed }} м/с</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-cloud-sun"></i> Небо:</div>
+                <div>
+                    {% if weather_data.weather.0.description == 'clear sky' %} ясне небо
+                    {% elif weather_data.weather.0.description == 'few clouds' %} кілька хмар
+                    {% elif weather_data.weather.0.description == 'scattered clouds' %} розсіяні хмари
+                    {% elif weather_data.weather.0.description == 'broken clouds' %} розірвані хмари
+                    {% elif weather_data.weather.0.description == 'shower rain' %} дощ з періодичними зливами
+                    {% elif weather_data.weather.0.description == 'rain' %} дощ
+                    {% elif weather_data.weather.0.description == 'thunderstorm' %} гроза
+                    {% elif weather_data.weather.0.description == 'snow' %} сніг
+                    {% elif weather_data.weather.0.description == 'mist' %} туман
+                    {% elif weather_data.weather.0.description == 'overcast clouds' %} похмуре небо
+                    {% else %} {{ weather_data.weather.0.description }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-sun"></i> Схід сонця:</div>
+                <div>{{ weather_data.sys.sunrise }}</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-moon"></i> Захід сонця:</div>
+                <div>{{ weather_data.sys.sunset }}</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-temperature-low"></i> Мінімальна температура:</div>
+                <div>{{ weather_data.main.temp_min }} °C</div>
+            </div>
+            <div class="card-text">
+                <div><i class="fas fa-temperature-high"></i> Максимальна температура:</div>
+                <div>{{ weather_data.main.temp_max }} °C</div>
+            </div>
+        </div>
+        {% elif error %}
+        <div class="alert alert-danger mx-auto" style="max-width: 600px;" role="alert">
+            {{ error }}
+        </div>
+        {% endif %}
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.3.0/js/bootstrap.min.js"></script>
+</body>
+</html>
